@@ -7,9 +7,9 @@ cobertos pela licença MIT do código próprio do Meet Dual Captions.
 
 - Arquivos: `vendor/bergamot/`
 - Projeto: <https://github.com/browsermt/bergamot-translator>
+- Pacote publicado: <https://www.npmjs.com/package/@browsermt/bergamot-translator/v/0.4.9>
 - Licença: Mozilla Public License 2.0
 - Texto da licença: [`THIRD_PARTY_LICENSES/MPL-2.0.txt`](THIRD_PARTY_LICENSES/MPL-2.0.txt)
-- Código-fonte correspondente: <https://github.com/browsermt/bergamot-translator/tree/v0.4.9>
 
 ## Modelo Mozilla EN → PT
 
