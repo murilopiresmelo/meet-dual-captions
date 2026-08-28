@@ -59,12 +59,12 @@ Abra o console da página e execute:
 window.__meetDualCaptionsDebug
 ```
 
-O objeto mostra a região de legendas detectada, o último par EN/PT e as métricas locais de tradução.
+O objeto mostra a região de legendas detectada, o texto-fonte e as métricas locais de tradução.
 
 ## Limites honestos
 
 - O Meet não oferece uma API pública estável para duas faixas simultâneas; a extensão observa a região acessível de legendas. Mudanças no DOM do Meet podem exigir manutenção.
-- O modelo local incluído traduz EN→PT. O caminho PT→EN depende da faixa traduzida oferecida pelo Meet.
+- O modelo local incluído traduz EN→PT. O caminho PT→EN não está disponível neste pacote.
 - A extensão não publica nada na Chrome Web Store; a instalação atual é manual.
 
 ## Licença: pode pegar, é grátis mesmo
