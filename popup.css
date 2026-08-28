@@ -1,0 +1,116 @@
+:root {
+  color-scheme: dark;
+  font: 14px Arial, sans-serif;
+}
+
+body {
+  width: 320px;
+  margin: 0;
+  background: #202124;
+  color: #f1f3f4;
+}
+
+main {
+  padding: 16px;
+}
+
+.brand {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.brand img {
+  width: 56px;
+  height: 56px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.brand p {
+  margin: 3px 0 0;
+  color: #bdc1c6;
+  font-size: 12px;
+}
+
+label,
+legend {
+  font-weight: 600;
+}
+
+select {
+  width: 100%;
+  margin: 7px 0 14px;
+  padding: 8px;
+  border: 1px solid #5f6368;
+  border-radius: 5px;
+  background: #292a2d;
+  color: inherit;
+}
+
+fieldset {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 10px;
+  align-items: center;
+  margin: 0 0 12px;
+  padding: 12px;
+  border: 1px solid #5f6368;
+  border-radius: 6px;
+}
+
+legend {
+  padding: 0 5px;
+}
+
+input[type="color"] {
+  width: 44px;
+  height: 30px;
+  padding: 1px;
+  border: 1px solid #9aa0a6;
+  background: transparent;
+}
+
+.range {
+  display: grid;
+  grid-template-columns: 1fr 40px;
+  gap: 8px;
+  align-items: center;
+}
+
+input[type="range"] {
+  width: 100%;
+}
+
+output {
+  text-align: right;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+button {
+  padding: 8px 10px;
+  border: 1px solid #8ab4f8;
+  border-radius: 5px;
+  background: transparent;
+  color: #8ab4f8;
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 2px solid #8ab4f8;
+  outline-offset: 2px;
+}
+
+#status {
+  color: #81c995;
+  font-size: 12px;
+}

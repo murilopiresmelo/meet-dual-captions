@@ -1,0 +1,37 @@
+{
+  "manifest_version": 3,
+  "name": "Meet Dual Captions",
+  "version": "0.5.0",
+  "description": "Exibe legendas simultâneas em inglês e português com tradução local.",
+  "icons": {
+    "16": "assets/icons/icon-16.png",
+    "32": "assets/icons/icon-32.png",
+    "48": "assets/icons/icon-48.png",
+    "128": "assets/icons/icon-128.png"
+  },
+  "permissions": ["offscreen", "storage"],
+  "action": {
+    "default_title": "Configurar legendas",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "assets/icons/icon-16.png",
+      "32": "assets/icons/icon-32.png",
+      "48": "assets/icons/icon-48.png",
+      "128": "assets/icons/icon-128.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://meet.google.com/*"],
+      "css": ["content.css"],
+      "js": ["caption-settings.js", "translation-metrics.js", "content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

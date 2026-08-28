@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Meet Dual Captions</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <main>
+    <header class="brand">
+      <img src="assets/mascot.png" alt="Legê, mascote do Meet Dual Captions">
+      <div>
+        <h1>Meet Dual Captions</h1>
+        <p>Duas línguas, zero malabarismo.</p>
+      </div>
+    </header>
+
+    <label for="alignment">Alinhamento</label>
+    <select id="alignment">
+      <option value="center">Centralizado</option>
+      <option value="left">Da esquerda para a direita</option>
+    </select>
+
+    <fieldset>
+      <legend>Inglês</legend>
+      <label for="englishColor">Cor</label>
+      <input id="englishColor" type="color">
+      <label for="englishSize">Tamanho</label>
+      <div class="range">
+        <input id="englishSize" type="range" min="14" max="40">
+        <output for="englishSize"></output>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Português</legend>
+      <label for="portugueseColor">Cor</label>
+      <input id="portugueseColor" type="color">
+      <label for="portugueseSize">Tamanho</label>
+      <div class="range">
+        <input id="portugueseSize" type="range" min="14" max="40">
+        <output for="portugueseSize"></output>
+      </div>
+    </fieldset>
+
+    <div class="footer">
+      <button id="reset" type="button">Restaurar padrão</button>
+      <span id="status" role="status" aria-live="polite"></span>
+    </div>
+  </main>
+  <script src="caption-settings.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
