@@ -31,6 +31,11 @@ h1 {
   font-size: 18px;
 }
 
+h2 {
+  margin: 0 0 8px;
+  font-size: 14px;
+}
+
 .brand p {
   margin: 3px 0 0;
   color: #bdc1c6;
@@ -40,6 +45,58 @@ h1 {
 label,
 legend {
   font-weight: 600;
+}
+
+.meeting-controls {
+  margin-bottom: 14px;
+  padding: 12px;
+  border: 1px solid #5f6368;
+  border-radius: 6px;
+  background: #292a2d;
+}
+
+.toggle-row {
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  gap: 8px;
+  align-items: center;
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.toggle-row input {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  accent-color: #8ab4f8;
+}
+
+.toggle-row strong,
+.toggle-row small {
+  display: block;
+}
+
+.toggle-row small {
+  margin-top: 2px;
+  color: #bdc1c6;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.toggle-row:has(input:disabled) {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+#runtimeStatus {
+  min-height: 18px;
+  margin: 8px 0 0;
+  color: #fdd663;
+  font-size: 12px;
+}
+
+#runtimeStatus[data-ready="true"] {
+  color: #81c995;
 }
 
 select {

@@ -1,0 +1,25 @@
+<!doctype html><html lang="pt-BR"><meta charset="utf-8"><title>Teste do histórico</title>
+<link rel="stylesheet" href="../content.css">
+<style>body{margin:0;background:#202124;color:white}main{position:fixed;inset:0;background:#38434a}aside{color:white}</style>
+<body><main>Área do Meet (controle fixo)</main></body>
+<aside id="meet-dual-captions-history"><header><h2>Histórico temporário</h2></header><ol><li>Uma fala de teste.</li></ol></aside>
+<script>window.module={exports:{}};</script><script src="../content.js"></script>
+<script>
+const panel=document.querySelector('aside'), header=panel.querySelector('header');
+document.documentElement.append(panel);
+const update=module.exports.attachHistoryMovement(panel,header);
+window.checkHistory=(side=panel.dataset.mode)=>{
+ const assert=(ok,label)=>{if(!ok)throw Error(label)};
+ assert(!header.querySelector('button'),'no buttons');
+ assert(panel.dataset.mode===side,'expected mode '+side);
+ const p=panel.getBoundingClientRect(),m=document.querySelector('main').getBoundingClientRect();
+ if(side==='floating') assert(m.width===innerWidth,'float restores width');
+ else {
+  assert(side==='left'?m.left>=p.right:m.right<=p.left,'no overlap');
+  assert(Math.abs(m.width+p.width-innerWidth)<2,'split width');
+ }
+ panel.hidden=true;update();assert(document.querySelector('main').getBoundingClientRect().width===innerWidth,'restore hidden');
+ panel.hidden=false;update();
+ return 'PASS: no buttons, '+side+', hide restores';
+};
+</script></html>

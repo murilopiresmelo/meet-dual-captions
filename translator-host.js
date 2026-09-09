@@ -1,10 +1,26 @@
 "use strict";
 
+const MODEL_DIRECTORIES = { enpt: "en-pt", pten: "pt-en" };
+
+function modelFilePaths(from, to) {
+  const pair = `${from}${to}`;
+  const directory = MODEL_DIRECTORIES[pair];
+  if (!directory) throw new Error(`Direção de tradução não suportada: ${from} → ${to}`);
+  const root = `./models/bergamot/${directory}/`;
+  return {
+    model: `${root}model.${pair}.intgemm.alphas.bin`,
+    shortlist: `${root}lex.50.50.${pair}.s2t.bin`,
+    vocab: `${root}vocab.${pair}.spm`,
+  };
+}
+
+if (typeof module === "object" && module.exports) {
+  module.exports = { modelFilePaths };
+} else {
 const SOURCE = "meet-dual-translator-host";
-const modelRoot = "./models/bergamot/en-pt/";
-const load = async (name) => {
-  const response = await fetch(modelRoot + name);
-  if (!response.ok) throw new Error(`Falha ao carregar ${name}: HTTP ${response.status}`);
+const load = async (path) => {
+  const response = await fetch(path);
+  if (!response.ok) throw new Error(`Falha ao carregar ${path}: HTTP ${response.status}`);
   return response.arrayBuffer();
 };
 
@@ -13,14 +29,18 @@ const translatorPromise = (async () => {
   const { LatencyOptimisedTranslator, TranslatorBacking } = await import("./vendor/bergamot/translator.js");
   class LocalBacking extends TranslatorBacking {
     async loadModelRegistery() {
-      return [{ from: "en", to: "pt" }];
+      return Object.keys(MODEL_DIRECTORIES).map((pair) => ({
+        from: pair.slice(0, 2),
+        to: pair.slice(2),
+      }));
     }
 
-    async loadTranslationModel() {
+    async loadTranslationModel({ from, to }) {
+      const files = modelFilePaths(from, to);
       const [model, shortlist, vocab] = await Promise.all([
-        load("model.enpt.intgemm.alphas.bin"),
-        load("lex.50.50.enpt.s2t.bin"),
-        load("vocab.enpt.spm"),
+        load(files.model),
+        load(files.shortlist),
+        load(files.vocab),
       ]);
       return { model, shortlist, vocabs: [vocab], config: {} };
     }
@@ -85,3 +105,4 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 chrome.runtime.sendMessage({ target: "content", source: SOURCE, type: "host-loaded" }).catch(() => {});
+}

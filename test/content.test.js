@@ -5,17 +5,21 @@ const { summarizeLatencies } = require("../translation-metrics.js");
 const {
   captionPairFromTranslation,
   captionRoleFromSpeakerLabel,
+  captionSpeakerAndText,
   captionPlacement,
   createLatestOnlyScheduler,
   detectLanguage,
   detectSourceLanguage,
   generatedCaptionText,
   incrementalTextPatch,
+  historyToggleText,
+  historyRequestMatches,
   isCaptionUiText,
   isCaptionStyleVisible,
   isCaptionElement,
   isTranslatedCaptionType,
   latestCaptionText,
+  meetingPathChanged,
   normalizeCaption,
   pairCaptions,
   pickCaptionRegion,
@@ -25,6 +29,7 @@ const {
   selectedTranslatedLanguage,
   selectedMeetingLanguage,
   toggleText,
+  upsertCaptionHistory,
 } = require("../content.js");
 
 test("appends only new translated words when the existing prefix is stable", () => {
@@ -57,6 +62,27 @@ test("translates one caption at a time and keeps only the newest pending caption
   scheduler.finish(1);
 
   assert.deepEqual(started, [1, 3]);
+  assert.deepEqual(dropped, [2]);
+});
+
+test("prioritizes the newest live caption before queued history translations", () => {
+  const started = [];
+  const dropped = [];
+  const scheduler = createLatestOnlyScheduler(
+    (request) => started.push(request.requestId),
+    (request) => dropped.push(request.requestId),
+  );
+
+  scheduler.enqueue({ requestId: 1, kind: "live" });
+  scheduler.enqueue({ requestId: "history-1", kind: "history" });
+  scheduler.enqueue({ requestId: 2, kind: "live" });
+  scheduler.enqueue({ requestId: 3, kind: "live" });
+  scheduler.enqueue({ requestId: "history-2", kind: "history" });
+  scheduler.finish(1);
+  scheduler.finish(3);
+  scheduler.finish("history-1");
+
+  assert.deepEqual(started, [1, 3, "history-1", "history-2"]);
   assert.deepEqual(dropped, [2]);
 });
 
@@ -345,4 +371,190 @@ test("keeps the menu toggle enabled by default and respects the saved state", ()
   assert.equal(readEnabled({ getItem: () => "false" }), false);
   assert.equal(toggleText(true), "Legendas duplas - Ligadas");
   assert.equal(toggleText(false), "Legendas duplas - Desligadas");
+});
+
+test("separates the Meet speaker name from the spoken phrase", () => {
+  assert.deepEqual(captionSpeakerAndText("Hello, everyone.", "Alex Silva"), {
+    speaker: "Alex Silva",
+    text: "Hello, everyone.",
+  });
+  assert.deepEqual(captionSpeakerAndText("Vanessa: Bom dia a todos."), {
+    speaker: "Participante",
+    text: "Vanessa: Bom dia a todos.",
+  });
+});
+
+test("keeps every completed phrase while consolidating incremental caption updates", () => {
+  const history = [];
+
+  assert.equal(upsertCaptionHistory(history, {
+    requestId: 1,
+    speaker: "Alex",
+    sourceText: "We need",
+    sourceLanguage: "en",
+  }), 0);
+  assert.equal(upsertCaptionHistory(history, {
+    requestId: 2,
+    speaker: "Alex",
+    sourceText: "We need to review the budget.",
+    sourceLanguage: "en",
+  }), 0);
+  assert.equal(upsertCaptionHistory(history, {
+    requestId: 2,
+    speaker: "Alex",
+    sourceText: "We need to review the budget.",
+    sourceLanguage: "en",
+    translation: "Precisamos revisar o orçamento.",
+  }), 0);
+  assert.equal(upsertCaptionHistory(history, {
+    requestId: 3,
+    speaker: "Vanessa",
+    sourceText: "Concordo com a proposta.",
+    sourceLanguage: "pt",
+  }), 1);
+
+  assert.deepEqual(history, [
+    {
+      requestId: 2,
+      speaker: "Alex",
+      sourceText: "We need to review the budget.",
+      sourceLanguage: "en",
+      translation: "Precisamos revisar o orçamento.",
+    },
+    {
+      requestId: 3,
+      speaker: "Vanessa",
+      sourceText: "Concordo com a proposta.",
+      sourceLanguage: "pt",
+      translation: "",
+    },
+  ]);
+  assert.equal(historyToggleText(true), "Histórico temporário - Ligado");
+  assert.equal(historyToggleText(false), "Histórico temporário - Desligado");
+});
+
+test("updates a completed translation without losing newer history entries", () => {
+  const history = [];
+  upsertCaptionHistory(history, {
+    requestId: 10,
+    speaker: "Alex",
+    sourceText: "First phrase.",
+    sourceLanguage: "en",
+  });
+  upsertCaptionHistory(history, {
+    requestId: 11,
+    speaker: "Vanessa",
+    sourceText: "Second phrase.",
+    sourceLanguage: "en",
+  });
+
+  assert.equal(upsertCaptionHistory(history, {
+    requestId: 10,
+    speaker: "Alex",
+    sourceText: "First phrase.",
+    sourceLanguage: "en",
+    translation: "Primeira frase.",
+  }), 0);
+  assert.equal(history.length, 2);
+  assert.equal(history[0].translation, "Primeira frase.");
+});
+
+test("keeps consecutive phrases from the same speaker as separate native caption blocks", () => {
+  const history = [];
+  upsertCaptionHistory(history, {
+    entryId: 1,
+    requestId: 20,
+    speaker: "Alex",
+    sourceText: "We need to review",
+    sourceLanguage: "en",
+  });
+  upsertCaptionHistory(history, {
+    entryId: 2,
+    requestId: 21,
+    speaker: "Alex",
+    sourceText: "We need to review the schedule too.",
+    sourceLanguage: "en",
+  });
+
+  assert.equal(history.length, 2);
+});
+
+test("ignores an old translation after the same caption block advances", () => {
+  const history = [];
+  upsertCaptionHistory(history, {
+    entryId: 7,
+    requestId: 30,
+    speaker: "Alex",
+    sourceText: "We need",
+    sourceLanguage: "en",
+  });
+  upsertCaptionHistory(history, {
+    entryId: 7,
+    requestId: 31,
+    speaker: "Alex",
+    sourceText: "We need the final report.",
+    sourceLanguage: "en",
+  });
+
+  assert.equal(upsertCaptionHistory(history, {
+    entryId: 7,
+    requestId: 30,
+    speaker: "Alex",
+    sourceText: "We need",
+    sourceLanguage: "en",
+    translation: "Precisamos",
+  }), null);
+  assert.equal(history[0].sourceText, "We need the final report.");
+  assert.equal(history[0].translation, "");
+});
+
+test("does not apply a stale history response to a revised phrase", () => {
+  const request = {
+    sourceText: "We need",
+    sourceLanguage: "en",
+  };
+  assert.equal(historyRequestMatches({
+    sourceText: "We need the final report.",
+    sourceLanguage: "en",
+  }, request), false);
+  assert.equal(historyRequestMatches({
+    sourceText: "We need",
+    sourceLanguage: "en",
+  }, request), true);
+});
+
+test("keeps complete long phrases in temporary history", () => {
+  const history = [];
+  const sourceText = "word ".repeat(300).trim();
+  upsertCaptionHistory(history, {
+    entryId: 9,
+    speaker: "Alex",
+    sourceText,
+    sourceLanguage: "en",
+  });
+  assert.equal(history[0].sourceText, sourceText);
+});
+
+test("keeps the latest request revision during passive history rescans", () => {
+  const history = [];
+  upsertCaptionHistory(history, {
+    entryId: 8,
+    requestId: 40,
+    speaker: "Alex",
+    sourceText: "Current phrase.",
+    sourceLanguage: "en",
+  });
+
+  assert.equal(upsertCaptionHistory(history, {
+    entryId: 8,
+    speaker: "Alex",
+    sourceText: "Current phrase.",
+    sourceLanguage: "en",
+  }), null);
+  assert.equal(history[0].requestId, 40);
+});
+
+test("resets temporary history when Meet navigates to another meeting path", () => {
+  assert.equal(meetingPathChanged("/abc-defg-hij", "/abc-defg-hij"), false);
+  assert.equal(meetingPathChanged("/abc-defg-hij", "/xyz-abcd-efg"), true);
 });

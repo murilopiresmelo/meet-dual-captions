@@ -16,6 +16,25 @@
       </div>
     </header>
 
+    <section class="meeting-controls" aria-labelledby="meetingControlsTitle">
+      <h2 id="meetingControlsTitle">Nesta reunião</h2>
+      <label class="toggle-row" for="captionsEnabled">
+        <input id="captionsEnabled" type="checkbox" role="switch">
+        <span>
+          <strong>Legendas duplas</strong>
+          <small>Inglês e português juntos.</small>
+        </span>
+      </label>
+      <label class="toggle-row" for="historyEnabled">
+        <input id="historyEnabled" type="checkbox" role="switch">
+        <span>
+          <strong>Histórico temporário</strong>
+          <small>Participantes e falas somente nesta aba.</small>
+        </span>
+      </label>
+      <p id="runtimeStatus" role="status" aria-live="polite"></p>
+    </section>
+
     <label for="alignment">Alinhamento</label>
     <select id="alignment">
       <option value="center">Centralizado</option>
@@ -50,6 +69,7 @@
     </div>
   </main>
   <script src="caption-settings.js"></script>
+  <script src="popup-state.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

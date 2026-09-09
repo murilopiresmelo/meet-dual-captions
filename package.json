@@ -1,10 +1,10 @@
 {
   "name": "meet-dual-legend",
-  "version": "0.5.0",
+  "version": "0.6.1",
   "private": true,
   "scripts": {
     "test": "node --test",
-    "check": "node --check background.js && node --check caption-settings.js && node --check content.js && node --check popup.js && node --check translation-metrics.js && node --check translator-host.js && node --check benchmark-browser.js && node --check scripts/benchmark-bergamot.mjs && node -e \"JSON.parse(require('node:fs').readFileSync('manifest.json'))\""
+    "check": "node --check background.js && node --check caption-settings.js && node --check content.js && node --check popup-state.js && node --check popup.js && node --check translation-metrics.js && node --check translator-host.js && node --check benchmark-browser.js && node --check scripts/benchmark-bergamot.mjs && node -e \"JSON.parse(require('node:fs').readFileSync('manifest.json'))\""
   },
   "devDependencies": {
     "@browsermt/bergamot-translator": "^0.4.9"
